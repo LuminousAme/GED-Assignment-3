@@ -11,12 +11,13 @@ public class LevelSelectionSystem : MonoBehaviour
     private static bool isInit = false;
     [SerializeField] private Dropdown levelPicker;
     [SerializeField] private Text newLevelNameInput;
+    private bool manualChange = false;
 
     // Start is called before the first frame update
     void Start()
     {
         //only initliaze the levels once
-        if(!isInit)
+        if (!isInit)
         {
             //find all of the level files
             string dir = Application.persistentDataPath;
@@ -57,19 +58,27 @@ public class LevelSelectionSystem : MonoBehaviour
         {
             levelPicker.ClearOptions();
             levelPicker.AddOptions(AllLevels);
-            String currentLevel = LevelSerializationManager.CurrentFile;
-            levelPicker.value = AllLevels.IndexOf(currentLevel);
+            int index = AllLevels.IndexOf(LevelSerializationManager.CurrentFile);
+            if (levelPicker.value != index)
+            {
+                manualChange = true;
+                levelPicker.value = index;
+            }
         }
-       
     }
 
     // When the level the player is selecting changes
     public void SelectedLevelChanged(int index)
     {
-        //set the current filename in the serialization manager to match the one selected
-        LevelSerializationManager.CurrentFile = AllLevels[index];
-        //set the dirty flag to false since the file for this won't have been loaded
-        LevelSerializationManager.isDirty = true;
+        if(!manualChange)
+        {
+            //set the current filename in the serialization manager to match the one selected
+            LevelSerializationManager.CurrentFile = AllLevels[index];
+            //set the dirty flag to false since the file for this won't have been loaded
+            LevelSerializationManager.isDirty = true;
+        }
+
+        manualChange = false;
     }
 
     //function for when the player hits the button to create a new level
@@ -82,7 +91,7 @@ public class LevelSelectionSystem : MonoBehaviour
             //check if it's already in the list
             bool isAlreadyInList = false;
             int index = -1;
-            for(int i = 0; i < AllLevels.Count; i++)
+            for (int i = 0; i < AllLevels.Count; i++)
             {
                 if (newLevelName == AllLevels[i])
                 {

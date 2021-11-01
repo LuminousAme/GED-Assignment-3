@@ -18,7 +18,7 @@ files it will generate an empty level by default.
 
 ### Demo Video
 
-Youtube link: []( "Youtube")
+Youtube link: [https://youtu.be/myt1CV21cUo](https://youtu.be/myt1CV21cUo "Youtube")
 
 ### Developement Team
 Ame Gilham - 100741352 - Developer/Programmer
