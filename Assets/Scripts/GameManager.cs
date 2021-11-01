@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         //load the level with all of the enemies and platforms
-        LevelSerializationManager.LoadAndSpawnLevel();
+        LevelSerializationManager.SpawnLevel();
 
         //create the player
         Transform newPlayer = ObjectFactory.MakeObject("player").Spawn(new Vector3(0.0f, 0.0f, -10.0f));

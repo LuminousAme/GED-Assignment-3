@@ -45,6 +45,8 @@ public static class LevelSerializationManager
     ///THIS SCRIPT TO THE REST OF PROJECT INTERFACE///
     public static string CurrentFile = null;
 
+    public static bool isDirty = true;
+
     public static void SerializeLevel()
     {
         //check we have a filename to save to (it doesn't matter if the file exists, the dll will create it if it doesn't, but we do need a name+path
@@ -69,14 +71,11 @@ public static class LevelSerializationManager
 
             //now that all of the objects are in C++ memory, just tell the dll to serialize it to the selected filename
             SaveLevel(Application.persistentDataPath + "/" + CurrentFile + ".atxsl"); //.atxsl - Atlas X Serialized Level
-
-            //clear all of the data on the C++ side, we don't need it there anymore
-            ClearData();
         }
         else Debug.LogError("No File Name present");
     }
 
-    public static void LoadAndSpawnLevel()
+    private static void LoadALevel()
     {
         //clear the data on the C++, we're about to read it all in from a file anyways
         ClearData();
@@ -85,33 +84,39 @@ public static class LevelSerializationManager
         if (CurrentFile != null)
         {
             //load in the data from the file
+            Debug.Log("Loading From File");
             LoadLevel(Application.persistentDataPath + "/" + CurrentFile + ".atxsl"); //.atxsl - Atlas X Serialized Level
-
-            //get the data for all of the platforms and send them over to the factory
-            int numOfPlatforms = GetNumOfPlatforms();
-            for (int i = 0; i < numOfPlatforms; i++)
-            {
-                //get the position and convert it to a unity vector3
-                V3 pos = GetPlatformPosFromIndex(i);
-                Vector3 position = new Vector3(pos.x, pos.y, pos.z);
-                //and use the factory to spawn a platform there
-                ObjectFactory.MakeObject("platform").Spawn(position);
-            }
-
-            //get the data for all of the enemies and send them over to the factory
-            int numOfEnemies = GetNumOfEnemies();
-            for (int i = 0; i < numOfEnemies; i++)
-            {
-                //get the position and convert it to a unity vector3
-                V3 pos = GetEnemyPosFromIndex(i);
-                Vector3 position = new Vector3(pos.x, pos.y, pos.z);
-                //and use the factory to spawn an enemy there
-                ObjectFactory.MakeObject("enemy").Spawn(position);
-            }
-
-            //clear all of the data on the C++ side, as the level is now loaded in unity we don't need it in C++ anymore
-            ClearData();
+            isDirty = false;
         }
         else Debug.LogError("No File Name present");
+    }
+
+    public static void SpawnLevel()
+    {
+        //if the 
+        if (isDirty)
+            LoadALevel();
+
+        //get the data for all of the platforms and send them over to the factory
+        int numOfPlatforms = GetNumOfPlatforms();
+        for (int i = 0; i < numOfPlatforms; i++)
+        {
+            //get the position and convert it to a unity vector3
+            V3 pos = GetPlatformPosFromIndex(i);
+            Vector3 position = new Vector3(pos.x, pos.y, pos.z);
+            //and use the factory to spawn a platform there
+            ObjectFactory.MakeObject("platform").Spawn(position);
+        }
+
+        //get the data for all of the enemies and send them over to the factory
+        int numOfEnemies = GetNumOfEnemies();
+        for (int i = 0; i < numOfEnemies; i++)
+        {
+            //get the position and convert it to a unity vector3
+            V3 pos = GetEnemyPosFromIndex(i);
+            Vector3 position = new Vector3(pos.x, pos.y, pos.z);
+            //and use the factory to spawn an enemy there
+            ObjectFactory.MakeObject("enemy").Spawn(position);
+        }
     }
 }

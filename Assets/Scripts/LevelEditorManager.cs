@@ -13,7 +13,7 @@ public class LevelEditorManager : MonoBehaviour
     void Awake()
     {
         //load the level in for editing
-        LevelSerializationManager.LoadAndSpawnLevel();
+        LevelSerializationManager.SpawnLevel();
         PopUpEnabled = false;
     }
 

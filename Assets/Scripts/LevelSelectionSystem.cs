@@ -7,39 +7,60 @@ using System.IO;
 
 public class LevelSelectionSystem : MonoBehaviour
 {
-    private List<string> AllLevels;
+    private static List<string> AllLevels;
+    private static bool isInit = false;
     [SerializeField] private Dropdown levelPicker;
     [SerializeField] private Text newLevelNameInput;
 
     // Start is called before the first frame update
     void Start()
     {
-        //find all of the level files
-        string dir = Application.persistentDataPath;
-        string[] files = Directory.GetFiles(dir, "*.atxsl");
-        
-        //iterate over them and copy their names without surronding path and extension
-        AllLevels = new List<string>();
-        for (int i = 0; i < files.Length; i++)
+        //only initliaze the levels once
+        if(!isInit)
         {
-            AllLevels.Add(Path.GetFileNameWithoutExtension(files[i]));
-        }
+            //find all of the level files
+            string dir = Application.persistentDataPath;
+            string[] files = Directory.GetFiles(dir, "*.atxsl");
 
-        //handle if there are no levels stored
-        if (AllLevels.Count == 0)
-        {
-            //create a new empty level called sample level
-            LevelSerializationManager.CurrentFile = "SampleLevel";
-            LevelSerializationManager.SerializeLevel();
+            //iterate over them and copy their names without surronding path and extension
+            AllLevels = new List<string>();
+            for (int i = 0; i < files.Length; i++)
+            {
+                AllLevels.Add(Path.GetFileNameWithoutExtension(files[i]));
+            }
+
+            //handle if there are no levels stored
+            if (AllLevels.Count == 0)
+            {
+                //create a new empty level called sample level
+                LevelSerializationManager.CurrentFile = "SampleLevel";
+                LevelSerializationManager.SerializeLevel();
+                //set the dirty flag to false since the serialization will have it loaded in C++ memory
+                LevelSerializationManager.isDirty = false;
+            }
+            else
+            {
+                LevelSerializationManager.CurrentFile = AllLevels[0];
+                //set the dirty flag to true since it won't have been loaded yet
+                LevelSerializationManager.isDirty = true;
+            }
+
+            //add all of the levels to the picker and set it to the first one
+            levelPicker.AddOptions(AllLevels);
+            levelPicker.value = 0;
+
+            //set is init to true
+            isInit = true;
         }
+        //if it's already initalized set the dropdown to match the data
         else
         {
-            LevelSerializationManager.CurrentFile = AllLevels[0];
+            levelPicker.ClearOptions();
+            levelPicker.AddOptions(AllLevels);
+            String currentLevel = LevelSerializationManager.CurrentFile;
+            levelPicker.value = AllLevels.IndexOf(currentLevel);
         }
-
-        //add all of the levels to the picker and set it to the first one
-        levelPicker.AddOptions(AllLevels);
-        levelPicker.value = 0;
+       
     }
 
     // When the level the player is selecting changes
@@ -47,6 +68,8 @@ public class LevelSelectionSystem : MonoBehaviour
     {
         //set the current filename in the serialization manager to match the one selected
         LevelSerializationManager.CurrentFile = AllLevels[index];
+        //set the dirty flag to false since the file for this won't have been loaded
+        LevelSerializationManager.isDirty = true;
     }
 
     //function for when the player hits the button to create a new level
