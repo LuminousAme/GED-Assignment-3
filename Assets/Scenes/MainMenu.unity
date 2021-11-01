@@ -193,7 +193,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Ame & Alvin's Simple Platformer \n+ Level Editor"
+  m_Text: "Ame & Alvin's Simple Platformer \n+ Level Editor + Ame's optimization"
 --- !u!222 &107876960
 CanvasRenderer:
   m_ObjectHideFlags: 0
